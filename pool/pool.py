@@ -234,7 +234,8 @@ class Pool:
                 self.log.info("Cancelled get_peak_loop, closing")
                 return
             except Exception as e:
-                self.log.error(f"Unexpected error in get_peak_loop: {e}")
+                # Add exc_info to get peak loop https://github.com/openchia/pool/commit/b11da51483669bcb93ef7a1893491a20b239fa74
+                self.log.error(f"Unexpected error in get_peak_loop: {e}", exc_info=True)
                 await asyncio.sleep(30)
 
     async def collect_pool_rewards_loop(self):

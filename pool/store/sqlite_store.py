@@ -252,7 +252,8 @@ class SqlitePoolStore(AbstractPoolStore):
         return [self._row_to_farmer_record(row) for row in rows]
 
     async def get_farmer_points_and_payout_instructions(self) -> List[Tuple[uint64, bytes, bytes]]:
-        cursor = await self.connection.execute(f"SELECT points, payout_instructions, launcher_id from farmer")
+        # Only get pool members for payment https://github.com/openchia/pool/commit/a363b13210a0fdeb9cef7f24e1cdbdee340f4518
+        cursor = await self.connection.execute(f"SELECT points, payout_instructions, launcher_id from farmer WHERE is_pool_member = true")
         rows = await cursor.fetchall()
         await cursor.close()
         accumulated: Dict[bytes32, uint64] = {}
