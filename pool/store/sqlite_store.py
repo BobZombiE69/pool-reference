@@ -199,6 +199,7 @@ class SqlitePoolStore(AbstractPoolStore):
             (launcher_id.hex(),),
         )
         row = await cursor.fetchone()
+        await cursor.close()
         if row is None:
             return None
         return self._row_to_farmer_record(row)
@@ -231,6 +232,7 @@ class SqlitePoolStore(AbstractPoolStore):
     async def get_pay_to_singleton_phs(self) -> Set[bytes32]:
         cursor = await self.connection.execute("SELECT p2_singleton_puzzle_hash from farmer")
         rows = await cursor.fetchall()
+        await cursor.close()
 
         all_phs: Set[bytes32] = set()
         for row in rows:
@@ -246,11 +248,13 @@ class SqlitePoolStore(AbstractPoolStore):
             puzzle_hashes_db,
         )
         rows = await cursor.fetchall()
+        await cursor.close()
         return [self._row_to_farmer_record(row) for row in rows]
 
     async def get_farmer_points_and_payout_instructions(self) -> List[Tuple[uint64, bytes, bytes]]:
         cursor = await self.connection.execute(f"SELECT points, payout_instructions, launcher_id from farmer")
         rows = await cursor.fetchall()
+        await cursor.close()
         accumulated: Dict[bytes32, uint64] = {}
         launcher_id_list: List[bytes32] = []
         i: int = 0
@@ -326,6 +330,7 @@ class SqlitePoolStore(AbstractPoolStore):
             (launcher_id.hex(), count),
         )
         rows = await cursor.fetchall()
+        await cursor.close()
         ret: List[Tuple[uint64, uint64]] = [(uint64(timestamp), uint64(difficulty)) for timestamp, difficulty in rows]
         return ret
 
