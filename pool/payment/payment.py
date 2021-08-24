@@ -241,21 +241,6 @@ class Payment:
 
                 self.log.info(f"Submitting a payment: {payment_targets}")
 
-                # add payment record for each launcher
-                for payment_target in payment_targets:
-                    self.log.info(f"payment_target : {payment_target}")
-                    payment = PaymentRecord(
-                        bytes32(payment_target["launcher_id"]),
-                        uint64(payment_target["amount"]),
-                        uint64(payment_target["points"]),
-                        uint64(time.time()),
-                        "XCH",
-                        "n/a",
-                        "n/a",
-                    )
-                    self.log.info(f"payment record: {payment}")
-                    await self.store.add_payment(payment)
-
                 # TODO(pool): make sure you have enough to pay the blockchain fee, this will be taken out of the pool
                 # fee itself. Alternatively you can set it to 0 and wait longer
                 # blockchain_fee = 0.00001 * (10 ** 12) * len(payment_targets)
@@ -287,7 +272,21 @@ class Payment:
                         self.log.info(f"Confirmations: {peak_height - transaction.confirmed_at_height}")
                     await asyncio.sleep(10)
 
-                # TODO(pool): persist in DB
+                # (DONE) TODO(pool): persist in DB
+                # add payment record for each launcher
+                for payment_target in payment_targets:
+                    self.log.info(f"payment_target : {payment_target}")
+                    payment = PaymentRecord(
+                        bytes32(payment_target["launcher_id"]),
+                        uint64(payment_target["amount"]),
+                        uint64(payment_target["points"]),
+                        uint64(time.time()),
+                        "XCH",
+                        bytes32(transaction.name),
+                        uint32(transaction.confirmed_at_height),
+                    )
+                    self.log.info(f"payment record: {payment}")
+                    await self.store.add_payment(payment)
                 self.log.info(f"Successfully confirmed payments {payment_targets}")
 
             except asyncio.CancelledError:
