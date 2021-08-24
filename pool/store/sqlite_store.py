@@ -136,7 +136,9 @@ class SqlitePoolStore(AbstractPoolStore):
     #     await cursor.close()
     #     await self.connection.commit()
 
-#  copied from https://github.com/Chia-Network/pool-reference/pull/239/commits/f46512bab55ebdd2835fcdeb7b747ece8bc2bfd8
+    # Bug Fix: Inaccurate points update！
+    # farmer request pool "post_farmer", "put_farmer" RPC interface, causing points to be replace by historical data.
+    # https://github.com/Chia-Network/pool-reference/pull/239/commits/f46512bab55ebdd2835fcdeb7b747ece8bc2bfd8
     async def add_farmer_record(self, farmer_record: FarmerRecord, metadata: RequestMetadata):
         # Find the launcher_id exists.
         cursor = await self.connection.execute(

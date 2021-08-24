@@ -380,6 +380,10 @@ class Pool:
 
                 if total_amount_claimed < calculate_pool_reward(uint32(1)):  # 1.75 XCH
                     self.log.info(f"Do not have enough funds to distribute: {total_amount_claimed}, skipping payout")
+                    # Bug fix: frequent access to get_coin_records_by_puzzle_hash
+                    # Bug fix: If the mining pool payment address receives transfers with less than 1.75XCH revenue, it will cause frequent calls to self.node_rpc_client.get_coin_records_by_puzzle_hash, add sleep(120), fix this problem.
+                    # https://github.com/Chia-Network/pool-reference/pull/238/commits/96355f6fe555f5404a437168eb54e580ded1cf59
+                    await asyncio.sleep(120)
                     continue
 
                 self.log.info(f"Total amount claimed: {total_amount_claimed / (10 ** 12)}")
